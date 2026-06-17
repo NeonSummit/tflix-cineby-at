@@ -15,6 +15,13 @@
     selectedSeason: 1
   };
 
+  function hideBootScreen() {
+    var boot = document.getElementById("boot");
+    if (boot) {
+      boot.style.display = "none";
+    }
+  }
+
   function $(id) {
     return document.getElementById(id);
   }
@@ -489,5 +496,6 @@
     setStatus("Ready without Tizen key registration");
   }
 
+  hideBootScreen();
   loadSection("trending");
 }());

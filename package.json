@@ -1,10 +1,10 @@
 {
   "name": "tflix-cineby-at",
   "appName": "TFlix Cineby AT",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Standalone TizenBrew app for browsing Cineby/Videasy content on Samsung TVs.",
   "packageType": "app",
-  "appPath": "app/index.html",
+  "appPath": "index.html",
   "evaluateScriptOnDocumentStart": false,
   "scripts": {
     "build": "cd mods && npm install && npm run build && cd ../service && npm install && npm run build && cd ..",

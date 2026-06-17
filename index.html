@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TFlix Cineby AT</title>
+    <link rel="icon" href="data:,">
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #101820;
+        color: #f6f7fb;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .boot {
+        position: fixed;
+        z-index: 9999;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #101820;
+      }
+      .boot-card {
+        width: 78vw;
+        max-width: 920px;
+        padding: 42px;
+        border: 4px solid #e7fe55;
+        border-radius: 8px;
+        background: #151d26;
+      }
+      .boot h1 {
+        margin: 0 0 16px;
+        color: #e7fe55;
+        font-size: 56px;
+        line-height: 1;
+      }
+      .boot p {
+        margin: 8px 0 0;
+        font-size: 24px;
+        line-height: 1.35;
+      }
+      .boot small {
+        display: block;
+        margin-top: 18px;
+        color: #aab1bf;
+        font-size: 18px;
+      }
+    </style>
+    <link rel="stylesheet" href="app/styles.css">
+  </head>
+  <body>
+    <div id="boot" class="boot">
+      <div class="boot-card">
+        <h1>BOOT OK</h1>
+        <p>TFlix Cineby AT 1.5.1 loaded root index.html.</p>
+        <p>If this stays on screen, TizenBrew can load the module but app JavaScript did not finish.</p>
+        <small>Entrypoint: index.html -> app/styles.css + app/app.js</small>
+      </div>
+    </div>
+
+    <div id="app" class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">T</span>
+          <div>
+            <h1>TFlix Cineby AT</h1>
+            <p id="status">BOOT OK - starting app JavaScript...</p>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Sections">
+          <button class="focusable tab is-active" data-action="section" data-section="trending">Trending</button>
+          <button class="focusable tab" data-action="section" data-section="movies">Movies</button>
+          <button class="focusable tab" data-action="section" data-section="tv">TV</button>
+          <button class="focusable tab" data-action="search">Search</button>
+        </nav>
+      </header>
+
+      <main>
+        <section id="catalog" class="catalog">
+          <div id="hero" class="hero"></div>
+          <h2 id="section-title">Trending</h2>
+          <div id="grid" class="grid" aria-live="polite"></div>
+        </section>
+
+        <section id="detail" class="detail hidden"></section>
+
+        <section id="player" class="player hidden">
+          <div class="player-bar">
+            <button class="focusable button" data-action="close-player">Back</button>
+            <div>
+              <h2 id="player-title">Player</h2>
+              <p id="player-url"></p>
+            </div>
+            <button class="focusable button" data-action="open-alt-player">Alt</button>
+          </div>
+          <iframe id="player-frame" title="Video player" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>
+        </section>
+      </main>
+
+      <div id="search-panel" class="overlay hidden">
+        <div class="search-box">
+          <h2>Search</h2>
+          <input id="search-input" class="focusable" type="text" autocomplete="off" placeholder="Movie or TV show">
+          <div class="keyboard">
+            <button class="focusable key" data-key="q">q</button><button class="focusable key" data-key="w">w</button><button class="focusable key" data-key="e">e</button><button class="focusable key" data-key="r">r</button><button class="focusable key" data-key="t">t</button><button class="focusable key" data-key="y">y</button><button class="focusable key" data-key="u">u</button><button class="focusable key" data-key="i">i</button><button class="focusable key" data-key="o">o</button><button class="focusable key" data-key="p">p</button>
+            <button class="focusable key" data-key="a">a</button><button class="focusable key" data-key="s">s</button><button class="focusable key" data-key="d">d</button><button class="focusable key" data-key="f">f</button><button class="focusable key" data-key="g">g</button><button class="focusable key" data-key="h">h</button><button class="focusable key" data-key="j">j</button><button class="focusable key" data-key="k">k</button><button class="focusable key" data-key="l">l</button>
+            <button class="focusable key" data-key="z">z</button><button class="focusable key" data-key="x">x</button><button class="focusable key" data-key="c">c</button><button class="focusable key" data-key="v">v</button><button class="focusable key" data-key="b">b</button><button class="focusable key" data-key="n">n</button><button class="focusable key" data-key="m">m</button>
+            <button class="focusable key wide" data-key=" ">Space</button>
+            <button class="focusable key wide" data-action="delete-char">Delete</button>
+            <button class="focusable key wide" data-action="run-search">Go</button>
+            <button class="focusable key wide" data-action="close-search">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <pre id="debug" class="debug hidden"></pre>
+    </div>
+    <script>
+      window.__TFLIX_ROOT_BOOTED__ = true;
+    </script>
+    <script src="app/app.js"></script>
+  </body>
+</html>
