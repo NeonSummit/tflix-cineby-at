@@ -21,20 +21,14 @@ This fork no longer loads `https://www.cineby.at` as the host page. The current 
 3. Add this GitHub module name:
 
    ```text
-   NeonSummit/tflix-cineby-at
+   NeonSummit/tflix-cineby-at@v1.6.0
    ```
 
-   In TizenBrew this becomes `gh/NeonSummit/tflix-cineby-at`.
+   In TizenBrew this becomes `gh/NeonSummit/tflix-cineby-at@v1.6.0`.
    Do not paste the full `https://github.com/...` URL into the GitHub module field.
 
-4. Restart or refresh TizenBrew if it keeps an older module cache. TizenBrew uses jsDelivr behind the scenes, so branch installs can stay cached.
+4. Restart or refresh TizenBrew if it keeps an older module cache. TizenBrew uses jsDelivr behind the scenes, so the pinned tag above avoids stale branch installs.
 5. Launch `TFlix Cineby AT`.
-
-If a pinned ref is needed while testing, use:
-
-```text
-NeonSummit/tflix-cineby-at@v1.6.0
-```
 
 ## Usage
 
