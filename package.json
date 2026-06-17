@@ -1,7 +1,7 @@
 {
   "name": "tflix-cineby-at",
   "appName": "TFlix Cineby AT",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Standalone TizenBrew app for browsing Cineby/Videasy content on Samsung TVs.",
   "packageType": "app",
   "appPath": "index.html",
@@ -12,17 +12,7 @@
     "prepublishOnly": "npm run build"
   },
   "author": "Zyrex",
-  "serviceFile": "dist/service.js",
-  "keys": [
-    "MediaPlayPause",
-    "MediaPlay",
-    "MediaPause",
-    "MediaStop",
-    "MediaFastForward",
-    "MediaRewind",
-    "MediaTrackNext",
-    "MediaTrackPrevious"
-  ],
+  "keys": [],
   "repository": {
     "type": "git",
     "url": "https://github.com/NeonSummit/tflix-cineby-at"

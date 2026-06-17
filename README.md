@@ -2,7 +2,7 @@
 
 Standalone Next Generation TizenBrew app for Samsung TVs.
 
-This fork no longer loads `https://www.cineby.at` as the host page. The current Cineby site uses a modern Next.js bundle, ads scripts, and anti-devtool logic that can crash older Tizen WebViews into a black screen. Version `1.6.1` starts a lightweight TV UI from a single-file root `index.html`, renders a fixed 1920x1080 TV stage scaled to the actual WebView, fetches catalog metadata from `db.videasy.to`, and launches playback through `player.videasy.to`.
+This fork no longer loads `https://www.cineby.at` as the host page. The current Cineby site uses a modern Next.js bundle, ads scripts, and anti-devtool logic that can crash older Tizen WebViews into a black screen. Version `1.6.2` starts a lightweight TV UI from a single-file root `index.html`, renders a fixed 1920x1080 TV stage scaled to the actual WebView, fetches catalog metadata from `db.videasy.to`, and launches playback through `player.videasy.to`.
 
 ## Features
 
@@ -21,10 +21,10 @@ This fork no longer loads `https://www.cineby.at` as the host page. The current 
 3. Add this GitHub module name:
 
    ```text
-   NeonSummit/tflix-cineby-at@v1.6.1
+   NeonSummit/tflix-cineby-at@v1.6.2
    ```
 
-   In TizenBrew this becomes `gh/NeonSummit/tflix-cineby-at@v1.6.1`.
+   In TizenBrew this becomes `gh/NeonSummit/tflix-cineby-at@v1.6.2`.
    Do not paste the full `https://github.com/...` URL into the GitHub module field.
 
 4. Restart or refresh TizenBrew if it keeps an older module cache. TizenBrew uses jsDelivr behind the scenes, so the pinned tag above avoids stale branch installs.
@@ -45,7 +45,7 @@ The root `package.json` is configured for TizenBrew app mode:
 {
   "packageType": "app",
   "appPath": "index.html",
-  "serviceFile": "dist/service.js"
+  "keys": []
 }
 ```
 
@@ -59,7 +59,7 @@ The standalone app is plain HTML/CSS/JavaScript and does not need a build step. 
 index.html
 ```
 
-The legacy service bundle is still present in `dist/service.js` for TV key registration.
+The app intentionally does not use a TizenBrew `serviceFile` and leaves manifest `keys` empty, so launch does not depend on model-specific key registration before the app opens. Remote navigation uses the mandatory DOM key events that Samsung TVs expose automatically.
 
 ## License
 
