@@ -1,12 +1,11 @@
 {
   "name": "tflix-cineby-at",
   "appName": "TFlix Cineby AT",
-  "version": "1.4.1",
-  "private": true,
-  "description": "Private TizenBrew module that makes the current Cineby.at site more usable on Samsung TVs.",
-  "packageType": "mods",
-  "websiteURL": "https://www.cineby.at",
-  "main": "dist/userScript.js",
+  "version": "1.5.0",
+  "description": "Standalone TizenBrew app for browsing Cineby/Videasy content on Samsung TVs.",
+  "packageType": "app",
+  "appPath": "app/index.html",
+  "evaluateScriptOnDocumentStart": false,
   "scripts": {
     "build": "cd mods && npm install && npm run build && cd ../service && npm install && npm run build && cd ..",
     "prepare": "npm run build",
@@ -42,6 +41,6 @@
   ],
   "license": "MIT",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   }
 }

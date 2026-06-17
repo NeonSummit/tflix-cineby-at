@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TFlix Cineby AT</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">T</span>
+          <div>
+            <h1>TFlix Cineby AT</h1>
+            <p id="status">Loading catalog...</p>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Sections">
+          <button class="focusable tab is-active" data-action="section" data-section="trending">Trending</button>
+          <button class="focusable tab" data-action="section" data-section="movies">Movies</button>
+          <button class="focusable tab" data-action="section" data-section="tv">TV</button>
+          <button class="focusable tab" data-action="search">Search</button>
+        </nav>
+      </header>
+
+      <main>
+        <section id="catalog" class="catalog">
+          <div id="hero" class="hero"></div>
+          <h2 id="section-title">Trending</h2>
+          <div id="grid" class="grid" aria-live="polite"></div>
+        </section>
+
+        <section id="detail" class="detail hidden"></section>
+
+        <section id="player" class="player hidden">
+          <div class="player-bar">
+            <button class="focusable button" data-action="close-player">Back</button>
+            <div>
+              <h2 id="player-title">Player</h2>
+              <p id="player-url"></p>
+            </div>
+            <button class="focusable button" data-action="open-alt-player">Alt</button>
+          </div>
+          <iframe id="player-frame" title="Video player" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>
+        </section>
+      </main>
+
+      <div id="search-panel" class="overlay hidden">
+        <div class="search-box">
+          <h2>Search</h2>
+          <input id="search-input" class="focusable" type="text" autocomplete="off" placeholder="Movie or TV show">
+          <div class="keyboard">
+            <button class="focusable key" data-key="q">q</button><button class="focusable key" data-key="w">w</button><button class="focusable key" data-key="e">e</button><button class="focusable key" data-key="r">r</button><button class="focusable key" data-key="t">t</button><button class="focusable key" data-key="y">y</button><button class="focusable key" data-key="u">u</button><button class="focusable key" data-key="i">i</button><button class="focusable key" data-key="o">o</button><button class="focusable key" data-key="p">p</button>
+            <button class="focusable key" data-key="a">a</button><button class="focusable key" data-key="s">s</button><button class="focusable key" data-key="d">d</button><button class="focusable key" data-key="f">f</button><button class="focusable key" data-key="g">g</button><button class="focusable key" data-key="h">h</button><button class="focusable key" data-key="j">j</button><button class="focusable key" data-key="k">k</button><button class="focusable key" data-key="l">l</button>
+            <button class="focusable key" data-key="z">z</button><button class="focusable key" data-key="x">x</button><button class="focusable key" data-key="c">c</button><button class="focusable key" data-key="v">v</button><button class="focusable key" data-key="b">b</button><button class="focusable key" data-key="n">n</button><button class="focusable key" data-key="m">m</button>
+            <button class="focusable key wide" data-key=" ">Space</button>
+            <button class="focusable key wide" data-action="delete-char">Delete</button>
+            <button class="focusable key wide" data-action="run-search">Go</button>
+            <button class="focusable key wide" data-action="close-search">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <pre id="debug" class="debug hidden"></pre>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
