@@ -635,12 +635,6 @@
 
   try {
     if (window.tizen && tizen.tvinputdevice) {
-      tizen.tvinputdevice.registerKey("Back");
-      tizen.tvinputdevice.registerKey("Enter");
-      tizen.tvinputdevice.registerKey("ArrowUp");
-      tizen.tvinputdevice.registerKey("ArrowDown");
-      tizen.tvinputdevice.registerKey("ArrowLeft");
-      tizen.tvinputdevice.registerKey("ArrowRight");
       tizen.tvinputdevice.registerKey("MediaPlayPause");
       tizen.tvinputdevice.registerKey("MediaPlay");
       tizen.tvinputdevice.registerKey("MediaPause");
