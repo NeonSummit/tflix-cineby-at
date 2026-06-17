@@ -1,8 +1,9 @@
 {
   "name": "@zyrecx/tflix-service",
   "version": "1.0.0",
-  "description": "TFlix service for handling backend functionality",
+  "description": "TFlix Cineby AT service for handling TV remote keys",
   "main": "service.js",
+  "type": "module",
   "scripts": {
     "build": "rollup -c rollup.config.js"
   },

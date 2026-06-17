@@ -1,7 +1,14 @@
 /**
- * Cineby.gd Content Detector and Enhancer
- * This module detects and enhances specific elements on Cineby.gd
+ * Cineby Content Detector and Enhancer
+ * This module detects and enhances specific elements on the current Cineby site.
  */
+
+import {
+  cinebySearchUrl,
+  isCinebyPage,
+  isCinebyWatchPage,
+  toArray
+} from './site.js';
 
 /**
  * Detect and enhance content cards/items
@@ -18,17 +25,17 @@ function enhanceContentItems() {
     '.card',
     // Image containers
     '.poster-container',
-    '.thumbnail',
-    // Any anchors with images (likely to be content items)
-    'a:has(img)'
+    '.thumbnail'
   ];
   
   // Find all content items using the selectors
   const allSelectors = selectors.join(', ');
-  const contentItems = document.querySelectorAll(allSelectors);
+  const contentItems = toArray(document.querySelectorAll(allSelectors));
+  const imageLinks = toArray(document.querySelectorAll('a')).filter(anchor => anchor.querySelector('img'));
+  const candidates = contentItems.concat(imageLinks).filter((item, index, items) => items.indexOf(item) === index);
   
   // Make each item focusable and add navigation attributes
-  contentItems.forEach((item, index) => {
+  candidates.forEach((item, index) => {
     // Ensure the item is focusable
     if (!item.getAttribute('tabindex')) {
       item.setAttribute('tabindex', '0');
@@ -37,8 +44,8 @@ function enhanceContentItems() {
     // Add data attribute for easier selection
     item.setAttribute('data-tflix-item', index);
     
-    // Special handling for Cineby.gd
-    if (window.location.hostname.includes('cineby.gd')) {
+    // Special handling for Cineby
+    if (isCinebyPage()) {
       const anchor = item.tagName === 'A' ? item : item.querySelector('a');
       if (anchor && anchor.href && anchor.href.includes('/movie/')) {
         // Add a special click handler for Cineby movie links
@@ -86,7 +93,7 @@ function enhanceContentItems() {
   });
   
   // For Cineby.gd, detect and enhance play buttons specifically
-  if (window.location.hostname.includes('cineby.gd')) {
+  if (isCinebyPage()) {
     enhanceCinebyPlayButtons();
   }
 }
@@ -107,11 +114,11 @@ function enhanceNavigationMenus() {
   // Find all navigation containers
   const navContainers = document.querySelectorAll(navSelectors.join(', '));
   
-  navContainers.forEach(nav => {
+  toArray(navContainers).forEach(nav => {
     // Find all navigation items/links
     const navItems = nav.querySelectorAll('a, button');
     
-    navItems.forEach((item, index) => {
+    toArray(navItems).forEach((item, index) => {
       // Ensure the item is focusable
       if (!item.getAttribute('tabindex')) {
         item.setAttribute('tabindex', '0');
@@ -169,15 +176,14 @@ function enhanceSearchFunctionality() {
   const searchSelectors = [
     // Common search elements
     'input[type="search"]',
-    'input[placeholder*="search" i]',
-    'input[placeholder*="find" i]',
-    'button[aria-label*="search" i]',
+    'input[placeholder]',
+    'button[aria-label]',
     '.search-button',
     '.search-icon',
     'a[href*="search"]',
     // Icon based search
-    'svg[class*="search" i]',
-    'i[class*="search" i]',
+    'svg[class*="search"]',
+    'i[class*="search"]',
     // Parent containers
     '.search-container',
     'form[action*="search"]'
@@ -185,7 +191,7 @@ function enhanceSearchFunctionality() {
   
   const searchElements = document.querySelectorAll(searchSelectors.join(', '));
   
-  searchElements.forEach(element => {
+  toArray(searchElements).forEach(element => {
     // Make the search element more prominent and focusable
     element.setAttribute('tabindex', '0');
     element.setAttribute('data-tflix-search', 'true');
@@ -221,13 +227,14 @@ function addSearchNavigationHandler() {
   // Try to find a header or navigation
   const headerElements = document.querySelectorAll('header, nav, .header, .navigation, .top-bar');
   
-  headerElements.forEach(header => {
+  toArray(headerElements).forEach(header => {
     // Look for potential search elements in the header
-    const searchLink = Array.from(header.querySelectorAll('a')).find(a => 
-      a.textContent.toLowerCase().includes('search') || 
-      a.href.includes('search') ||
-      a.getAttribute('aria-label')?.toLowerCase().includes('search')
-    );
+    const searchLink = toArray(header.querySelectorAll('a')).find(a => {
+      const ariaLabel = a.getAttribute('aria-label') || '';
+      return a.textContent.toLowerCase().includes('search') ||
+        a.href.includes('search') ||
+        ariaLabel.toLowerCase().includes('search');
+    });
     
     if (searchLink) {
       searchLink.setAttribute('tabindex', '0');
@@ -246,11 +253,11 @@ function addSearchNavigationHandler() {
     }
   });
   
-  // If the site is cineby.gd, specifically look for the search link
-  if (window.location.hostname.includes('cineby.gd')) {
+  // If the site is Cineby, specifically look for the search link
+  if (isCinebyPage()) {
     // Make search more accessible without requiring keyboard shortcuts
     const searchLinks = document.querySelectorAll('a[href*="search"]');
-    searchLinks.forEach(link => {
+    toArray(searchLinks).forEach(link => {
       link.setAttribute('tabindex', '0');
       link.classList.add('tflix-search-element');
     });
@@ -283,7 +290,7 @@ function activateSearch(element) {
   
   // If it's a link to search page, navigate to it
   if (element.tagName.toLowerCase() === 'a' && 
-      (element.href.includes('search') || element.getAttribute('href')?.includes('search'))) {
+      (element.href.includes('search') || (element.getAttribute('href') || '').includes('search'))) {
     window.location.href = element.href;
     return;
   }
@@ -295,9 +302,9 @@ function activateSearch(element) {
     return;
   }
   
-  // For cineby.gd specifically, navigate to the search page
-  if (window.location.hostname.includes('cineby.gd')) {
-    window.location.href = 'https://www.cineby.gd/search';
+  // For Cineby specifically, navigate to the search page
+  if (isCinebyPage()) {
+    window.location.href = cinebySearchUrl();
     return;
   }
 }
@@ -330,7 +337,7 @@ function showSearchToast() {
  */
 function enhanceCinebyVideoPlayer() {
   // Only run on movie pages
-  if (!window.location.pathname.includes('/movie/')) return;
+  if (!isCinebyWatchPage()) return;
   
   // Try to find the video player
   const videoPlayers = document.querySelectorAll('video');
@@ -354,7 +361,7 @@ function enhanceCinebyVideoPlayer() {
     observer.observe(document.body, { childList: true, subtree: true });
   } else {
     // If video is already present, set up controls immediately
-    videoPlayers.forEach(setupVideoPlayerControls);
+    toArray(videoPlayers).forEach(setupVideoPlayerControls);
   }
 }
 
@@ -397,7 +404,7 @@ function handleVideoKeyEvents(e) {
   if (!video) return;
   
   // Check if we're on a video page
-  if (!window.location.pathname.includes('/movie/')) return;
+  if (!isCinebyWatchPage()) return;
   
   switch (e.key) {
     case 'Enter':
@@ -507,45 +514,24 @@ function showVideoInfoToast(message) {
  */
 function enhanceCinebyPlayButtons() {
   // Only run on movie info pages
-  if (!window.location.pathname.includes('/movie/')) return;
-  
-  // Common selectors for play buttons
-  const playButtonSelectors = [
-    'button:contains("Play")',
-    'button:contains("Watch")',
-    'a:contains("Play")',
-    'a:contains("Watch")',
-    '.play-button',
-    '.watch-button',
-    '.play-icon',
-    'button[aria-label*="play" i]',
-    'button[aria-label*="watch" i]',
-    // Any element that might be a play button
-    '[class*="play" i]',
-    '[class*="watch" i]',
-    '[id*="play" i]',
-    '[id*="watch" i]',
-    // Find button elements by their icon content
-    'button svg',
-    'a svg'
-  ];
+  if (!isCinebyWatchPage()) return;
   
   // Look for potential play buttons
   const allButtons = document.querySelectorAll('button, a, div[role="button"]');
   
-  allButtons.forEach(button => {
+  toArray(allButtons).forEach(button => {
     // Check if it's likely a play button
     const isPlayButton = 
-      button.textContent?.toLowerCase().includes('play') ||
-      button.textContent?.toLowerCase().includes('watch') ||
-      button.getAttribute('aria-label')?.toLowerCase().includes('play') ||
-      button.getAttribute('aria-label')?.toLowerCase().includes('watch') ||
+      (button.textContent || '').toLowerCase().includes('play') ||
+      (button.textContent || '').toLowerCase().includes('watch') ||
+      (button.getAttribute('aria-label') || '').toLowerCase().includes('play') ||
+      (button.getAttribute('aria-label') || '').toLowerCase().includes('watch') ||
       button.classList.contains('play-button') ||
       button.classList.contains('watch-button') ||
-      button.id?.toLowerCase().includes('play') ||
-      button.id?.toLowerCase().includes('watch') ||
+      (button.id || '').toLowerCase().includes('play') ||
+      (button.id || '').toLowerCase().includes('watch') ||
       button.querySelector('svg') || // Might be an icon button
-      button.querySelector('i[class*="play" i]');
+      toArray(button.querySelectorAll('i')).some(icon => (icon.className || '').toLowerCase().includes('play'));
     
     if (isPlayButton) {
       // Make sure it's focusable
@@ -681,8 +667,7 @@ function detectAndEnhanceContent() {
   enhanceCinebyVideoPlayer();
   
   // Special handling for Cineby.gd on movie info pages
-  if (window.location.hostname.includes('cineby.gd') && 
-      window.location.pathname.includes('/movie/')) {
+  if (isCinebyPage() && isCinebyWatchPage()) {
     enhanceCinebyPlayButtons();
   }
 }

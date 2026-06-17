@@ -1,5 +1,6 @@
 /*global navigate*/
 import css from './ui.css';
+import { isCinebyPage, isCinebyWatchPage } from './site.js';
 
 let videoElement = null;
 let playerControls = null;
@@ -123,8 +124,8 @@ function setupMediaControlListeners() {
 function handleBackButton(e) {
   e.preventDefault(); // Prevent default back behavior
   
-  // Special handling for Cineby.gd
-  if (window.location.hostname.includes('cineby.gd')) {
+  // Special handling for Cineby
+  if (isCinebyPage()) {
     // Check if we're in a video player mode
     if (videoElement && videoElement.parentElement && 
         (document.fullscreenElement || 
@@ -261,7 +262,7 @@ function enhanceVideoPlayer(video) {
   
   // Show controls when moving focus with the TV remote
   document.addEventListener('keydown', function(e) {
-    if (Object.values(ARROW_KEY_CODE).includes(e.key)) {
+    if (isArrowKey(e.key)) {
       showControls();
     }
   });
@@ -325,8 +326,8 @@ function fixVideoPlaybackIssues(video) {
     video.setAttribute('preload', 'auto');
   }
   
-  // Special handling for Cineby.gd
-  if (window.location.hostname.includes('cineby.gd')) {
+  // Special handling for Cineby
+  if (isCinebyPage()) {
     // Make sure we can manipulate the video
     video.setAttribute('controlsList', 'nodownload');
     
@@ -368,7 +369,7 @@ function handleCinebyVideoKeyEvents(e) {
   if (!video) return;
   
   // Only process if we're on a video page and the video is visible
-  if (!window.location.pathname.includes('/movie/') || 
+  if (!isCinebyWatchPage() ||
       video.style.display === 'none' || 
       video.style.visibility === 'hidden') {
     return;
@@ -428,8 +429,8 @@ function handleVideoError(e) {
   const currentSrc = videoElement.src;
   const currentTime = videoElement.currentTime || 0;
   
-  // Special handling for Cineby.gd
-  if (window.location.hostname.includes('cineby.gd')) {
+  // Special handling for Cineby
+  if (isCinebyPage()) {
     // For Cineby, try a more aggressive recovery approach
     
     // First, check if it's just a missing source or corruption
@@ -684,6 +685,13 @@ const ARROW_KEY_CODE = {
   'ArrowRight': 'right',
   'ArrowDown': 'down'
 };
+
+function isArrowKey(key) {
+  return key === 'ArrowLeft' ||
+    key === 'ArrowUp' ||
+    key === 'ArrowRight' ||
+    key === 'ArrowDown';
+}
 
 // Initialize UI when the page is loaded
 const interval = setInterval(() => {

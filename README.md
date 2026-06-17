@@ -1,6 +1,8 @@
-# TFlix
+# TFlix Cineby AT
 
-TFlix is a TizenBrew module that transforms [Cineby.gd](https://www.cineby.gd/) into a TV-friendly experience for Samsung TVs. It creates a Netflix-like navigation system optimized for remote control operation.
+Private TizenBrew module that opens the current [Cineby.at](https://www.cineby.at/) site and makes it more usable on Samsung TVs.
+
+This fork is tuned for Next Generation TizenBrew and the Cineby `cineby.gd` to `cineby.at` migration. It keeps the original remote navigation and video-control work, but removes the old `cineby.gd` hostname gates and avoids DOM APIs that are risky on older Tizen WebViews.
 
 ## Features
 
@@ -20,9 +22,9 @@ TFlix is a TizenBrew module that transforms [Cineby.gd](https://www.cineby.gd/) 
 
 ### Installing from npm (Recommended)
 
-1. On your TV with TizenBrew installed, navigate to the Package Manager
-2. Search for "@zyrecx/tflix"
-3. Select and install the package
+1. On your TV with Next Generation TizenBrew installed, open the module manager.
+2. Add this private GitHub repository as a module.
+3. Open `TFlix Cineby AT`; it should launch `https://www.cineby.at`.
 
 ### Manual Installation
 
@@ -33,7 +35,7 @@ TFlix is a TizenBrew module that transforms [Cineby.gd](https://www.cineby.gd/) 
 
 2. Package the module for TizenBrew:
    - Copy the entire TFlix folder to your TizenBrew modules directory
-   - Alternatively, package it as a .ZIP file and install via TizenBrew
+  - Alternatively, package the repository as a ZIP file and install it via TizenBrew if your build supports local module imports.
 
 3. Open TizenBrew on your TV and select TFlix from the modules list
 
@@ -48,7 +50,7 @@ TFlix is a TizenBrew module that transforms [Cineby.gd](https://www.cineby.gd/) 
 
 ### Project Structure
 
-- `mods/` - Contains the JavaScript modules for enhancing Cineby.gd
+- `mods/` - Contains the JavaScript modules for enhancing Cineby.at
 - `service/` - Contains the service code for handling TV functionality
 - `dist/` - Contains the built module files
 
@@ -68,4 +70,4 @@ MIT
 
 ---
 
-*TFlix is a community-created module for TizenBrew and is not officially affiliated with Cineby.gd.*
+*TFlix Cineby AT is a private community-created module for TizenBrew and is not officially affiliated with Cineby.*

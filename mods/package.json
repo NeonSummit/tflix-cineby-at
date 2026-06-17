@@ -1,7 +1,7 @@
 {
   "name": "@zyrecx/tflix-mods",
   "version": "1.0.0",
-  "description": "TFlix module for Cineby.gd",
+  "description": "TFlix module for the current Cineby.at site",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -19,6 +19,8 @@
   "dependencies": {
     "@babel/preset-env": "^7.22.9",
     "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-terser": "^0.4.3",
     "rollup": "^3.26.2",
     "rollup-plugin-string": "^3.0.0",
