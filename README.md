@@ -33,7 +33,7 @@ This fork no longer loads `https://www.cineby.at` as the host page. The current 
 If a pinned ref is needed while testing, use:
 
 ```text
-NeonSummit/tflix-cineby-at@b1940e
+NeonSummit/tflix-cineby-at@v1.5.2
 ```
 
 ## Usage
