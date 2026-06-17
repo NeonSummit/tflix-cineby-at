@@ -2,7 +2,7 @@
 
 Standalone Next Generation TizenBrew app for Samsung TVs.
 
-This fork no longer loads `https://www.cineby.at` as the host page. The current Cineby site uses a modern Next.js bundle, ads scripts, and anti-devtool logic that can crash older Tizen WebViews into a black screen. Version `1.5.2` starts a lightweight TV UI from a single-file root `index.html`, fetches catalog metadata from `db.videasy.to`, and launches playback through `player.videasy.to`.
+This fork no longer loads `https://www.cineby.at` as the host page. The current Cineby site uses a modern Next.js bundle, ads scripts, and anti-devtool logic that can crash older Tizen WebViews into a black screen. Version `1.6.0` starts a lightweight TV UI from a single-file root `index.html`, renders a fixed 1920x1080 TV stage scaled to the actual WebView, fetches catalog metadata from `db.videasy.to`, and launches playback through `player.videasy.to`.
 
 ## Features
 
@@ -33,7 +33,7 @@ This fork no longer loads `https://www.cineby.at` as the host page. The current 
 If a pinned ref is needed while testing, use:
 
 ```text
-NeonSummit/tflix-cineby-at@v1.5.2
+NeonSummit/tflix-cineby-at@v1.6.0
 ```
 
 ## Usage
@@ -55,7 +55,7 @@ The root `package.json` is configured for TizenBrew app mode:
 }
 ```
 
-The root `index.html` shows a large `BOOT OK` diagnostic before the inline app JavaScript runs. If that screen stays visible, TizenBrew loaded the module but did not execute inline JavaScript. The older `mods/` source is kept in the repository for reference, but it is not the active launch path for this module.
+The root `index.html` shows a large `BOOT OK` diagnostic before the inline app JavaScript runs. If that screen stays visible, TizenBrew loaded the module but did not execute inline JavaScript. The active app uses a fixed 1920x1080 TV stage and scales it to the WebView to avoid partial-width layouts on Samsung TVs. The older `mods/` source is kept in the repository for reference, but it is not the active launch path for this module.
 
 ## Development
 

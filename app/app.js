@@ -3,6 +3,8 @@
 
   var DB = "https://db.videasy.to/3";
   var IMAGE = "https://image.tmdb.org/t/p/";
+  var STAGE_WIDTH = 1920;
+  var STAGE_HEIGHT = 1080;
   var state = {
     section: "trending",
     items: [],
@@ -10,10 +12,45 @@
     currentUrl: "",
     altUrl: "",
     lastCatalogFocus: null,
+    focusedElement: null,
+    lastRemoteAction: "",
+    lastRemoteActionAt: 0,
     detailSeasons: [],
     detailEpisodes: [],
     selectedSeason: 1
   };
+
+  function forceTvViewport() {
+    var meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "viewport";
+      document.head.appendChild(meta);
+    }
+    meta.content = "width=1920, height=1080, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+  }
+
+  function applyStageScale() {
+    var app = $("app");
+    var width = window.innerWidth || document.documentElement.clientWidth || STAGE_WIDTH;
+    var height = window.innerHeight || document.documentElement.clientHeight || STAGE_HEIGHT;
+    var scale = Math.min(width / STAGE_WIDTH, height / STAGE_HEIGHT);
+    if (!app) {
+      return;
+    }
+    if (!scale || scale <= 0) {
+      scale = 1;
+    }
+    app.style.width = STAGE_WIDTH + "px";
+    app.style.height = STAGE_HEIGHT + "px";
+    app.style.transformOrigin = "0 0";
+    app.style.webkitTransformOrigin = "0 0";
+    app.style.transform = "scale(" + scale + ")";
+    app.style.webkitTransform = "scale(" + scale + ")";
+    document.body.style.width = width + "px";
+    document.body.style.height = height + "px";
+    document.body.style.overflow = "hidden";
+  }
 
   function hideBootScreen() {
     var boot = document.getElementById("boot");
@@ -31,6 +68,51 @@
     debug.className = "debug";
     debug.textContent = String(message || "Unknown error");
     setStatus("Error. See red diagnostic box.");
+  }
+
+  function clearFocusedClass() {
+    if (state.focusedElement && state.focusedElement.classList) {
+      state.focusedElement.classList.remove("is-focused");
+    }
+  }
+
+  function focusElement(element) {
+    if (!element) {
+      return;
+    }
+    clearFocusedClass();
+    state.focusedElement = element;
+    try {
+      element.focus();
+    } catch (e) {}
+    if (element.classList) {
+      element.classList.add("is-focused");
+    }
+    if (element.scrollIntoView) {
+      try {
+        element.scrollIntoView({ block: "nearest", inline: "nearest" });
+      } catch (e2) {
+        element.scrollIntoView();
+      }
+    }
+  }
+
+  function clickElement(element) {
+    var event;
+    if (!element) {
+      return;
+    }
+    try {
+      if (typeof element.click === "function") {
+        element.click();
+        return;
+      }
+    } catch (e) {}
+    try {
+      event = document.createEvent("MouseEvents");
+      event.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      element.dispatchEvent(event);
+    } catch (e2) {}
   }
 
   window.onerror = function (message, source, line, column, error) {
@@ -131,7 +213,7 @@
     state.items = items;
     for (i = 0; i < items.length; i += 1) {
       html +=
-        '<button class="focusable card" data-action="details" data-index="' + i + '">' +
+        '<button class="focusable card" tabindex="0" data-action="details" data-index="' + i + '">' +
         '<img class="poster" src="' + escapeHtml(poster(items[i].poster_path, "w342")) + '" alt="">' +
         '<span class="card-title">' + escapeHtml(items[i].title) + "</span>" +
         '<span class="card-meta">' + escapeHtml(items[i].media_type.toUpperCase() + (year(items[i].date) ? " • " + year(items[i].date) : "")) + "</span>" +
@@ -226,9 +308,10 @@
       '<div class="detail-meta">' + escapeHtml(media.toUpperCase() + (year(state.current.date) ? " • " + year(state.current.date) : "") + (data.vote_average ? " • " + Number(data.vote_average).toFixed(1) : "")) + "</div>" +
       '<p class="detail-overview">' + escapeHtml(data.overview || "No description available.") + "</p>" +
       '<div class="actions">' +
-      '<button class="focusable button primary" data-action="play-current">Play</button>' +
-      '<button class="focusable button" data-action="play-alt-current">Alt Player</button>' +
-      '<button class="focusable button" data-action="back-catalog">Back</button>' +
+      '<button class="focusable button primary" tabindex="0" data-action="play-current">Play</button>' +
+      '<button class="focusable button" tabindex="0" data-action="play-embed-current">Embed</button>' +
+      '<button class="focusable button" tabindex="0" data-action="play-alt-current">Alt Player</button>' +
+      '<button class="focusable button" tabindex="0" data-action="back-catalog">Back</button>' +
       "</div>" +
       seasonHtml +
       "</div>" +
@@ -247,7 +330,7 @@
       if (seasons[i].season_number > 0) {
         state.detailSeasons.push(seasons[i]);
         if (added < 8) {
-          html += '<button class="focusable button" data-action="season" data-season="' + seasons[i].season_number + '">S' + seasons[i].season_number + "</button>";
+          html += '<button class="focusable button" tabindex="0" data-action="season" data-season="' + seasons[i].season_number + '">S' + seasons[i].season_number + "</button>";
         }
         added += 1;
       }
@@ -273,7 +356,7 @@
       episodes = data.episodes || [];
       state.detailEpisodes = episodes;
       for (i = 0; i < episodes.length; i += 1) {
-        html += '<button class="focusable episode-button" data-action="play-episode" data-episode="' + episodes[i].episode_number + '">E' + episodes[i].episode_number + "</button>";
+        html += '<button class="focusable episode-button" tabindex="0" data-action="play-episode" data-episode="' + episodes[i].episode_number + '">E' + episodes[i].episode_number + "</button>";
       }
       box.innerHTML = html || '<p class="muted">No episodes found.</p>';
     });
@@ -294,7 +377,15 @@
     };
   }
 
-  function openPlayer(useAlt, episode) {
+  function launchExternalPlayer(url) {
+    setStatus("Opening player...");
+    try {
+      window.sessionStorage.setItem("tflixLastSection", state.section || "trending");
+    } catch (e) {}
+    window.location.href = url;
+  }
+
+  function openPlayer(useAlt, episode, embed) {
     var urls;
     if (!state.current) {
       return;
@@ -302,6 +393,10 @@
     urls = buildPlayerUrls(state.current, episode);
     state.currentUrl = urls.primary;
     state.altUrl = urls.alt;
+    if (!embed) {
+      launchExternalPlayer(useAlt ? urls.alt : urls.primary);
+      return;
+    }
     $("player-title").textContent = state.current.title;
     $("player-url").textContent = useAlt ? urls.alt : urls.primary;
     $("player-frame").src = useAlt ? urls.alt : urls.primary;
@@ -335,7 +430,7 @@
 
   function openSearch() {
     $("search-panel").className = "overlay";
-    $("search-input").focus();
+    focusElement($("search-input"));
   }
 
   function closeSearch() {
@@ -346,7 +441,7 @@
     var first = root.querySelector(".focusable");
     if (first) {
       setTimeout(function () {
-        first.focus();
+        focusElement(first);
       }, 0);
     }
   }
@@ -365,7 +460,7 @@
 
   function moveFocus(direction) {
     var items = getFocusables();
-    var active = document.activeElement;
+    var active = state.focusedElement || document.activeElement;
     var currentRect = active && active.getBoundingClientRect ? active.getBoundingClientRect() : null;
     var best = null;
     var bestScore = 999999999;
@@ -398,10 +493,7 @@
       }
     }
     if (best) {
-      best.focus();
-      if (best.scrollIntoView) {
-        best.scrollIntoView({ block: "nearest", inline: "nearest" });
-      }
+      focusElement(best);
     }
   }
 
@@ -419,7 +511,7 @@
     if ($("detail").className.indexOf("hidden") === -1) {
       showCatalog();
       if (state.lastCatalogFocus) {
-        state.lastCatalogFocus.focus();
+        focusElement(state.lastCatalogFocus);
       }
     }
   }
@@ -429,7 +521,7 @@
     var key = target.getAttribute("data-key");
     if (key != null) {
       $("search-input").value += key;
-      $("search-input").focus();
+      focusElement($("search-input"));
       return;
     }
     if (action === "section") {
@@ -441,11 +533,13 @@
     } else if (action === "back-catalog") {
       goBack();
     } else if (action === "play-current") {
-      openPlayer(false, 1);
+      openPlayer(false, 1, false);
+    } else if (action === "play-embed-current") {
+      openPlayer(false, 1, true);
     } else if (action === "play-alt-current") {
-      openPlayer(true, 1);
+      openPlayer(true, 1, false);
     } else if (action === "play-episode") {
-      openPlayer(false, Number(target.getAttribute("data-episode")));
+      openPlayer(false, Number(target.getAttribute("data-episode")), false);
     } else if (action === "season") {
       loadSeason(state.current.id, Number(target.getAttribute("data-season")));
     } else if (action === "close-player") {
@@ -459,7 +553,7 @@
       closeSearch();
     } else if (action === "delete-char") {
       $("search-input").value = $("search-input").value.slice(0, -1);
-      $("search-input").focus();
+      focusElement($("search-input"));
     }
   }
 
@@ -467,6 +561,9 @@
     var node = event.target;
     while (node && node !== document) {
       if (node.getAttribute && (node.getAttribute("data-action") || node.getAttribute("data-key"))) {
+        if (node.className && String(node.className).indexOf("focusable") !== -1) {
+          focusElement(node);
+        }
         handleClick(node);
         return;
       }
@@ -474,19 +571,76 @@
     }
   });
 
-  document.addEventListener("keydown", function (event) {
+  document.addEventListener("focusin", function (event) {
+    var node = event.target;
+    if (node && node.className && String(node.className).indexOf("focusable") !== -1) {
+      clearFocusedClass();
+      state.focusedElement = node;
+      if (node.classList) {
+        node.classList.add("is-focused");
+      }
+    }
+  }, true);
+
+  function remoteAction(event) {
     var code = event.keyCode || event.which;
-    if (code === 37) { event.preventDefault(); moveFocus("left"); }
-    else if (code === 38) { event.preventDefault(); moveFocus("up"); }
-    else if (code === 39) { event.preventDefault(); moveFocus("right"); }
-    else if (code === 40) { event.preventDefault(); moveFocus("down"); }
-    else if (code === 13) { event.preventDefault(); if (document.activeElement) { document.activeElement.click(); } }
-    else if (code === 8 || code === 10009 || code === 461) { event.preventDefault(); goBack(); }
-  });
+    var key = event.key || "";
+    if (code === 37 || key === "ArrowLeft" || key === "Left") { return "left"; }
+    if (code === 38 || key === "ArrowUp" || key === "Up") { return "up"; }
+    if (code === 39 || key === "ArrowRight" || key === "Right") { return "right"; }
+    if (code === 40 || key === "ArrowDown" || key === "Down") { return "down"; }
+    if (code === 13 || code === 29443 || key === "Enter" || key === "OK") { return "enter"; }
+    if (code === 8 || code === 10009 || code === 461 || key === "Back" || key === "XF86Back" || key === "BrowserBack") { return "back"; }
+    return "";
+  }
+
+  function shouldDebounce(action) {
+    var now = new Date().getTime();
+    if (state.lastRemoteAction === action && now - state.lastRemoteActionAt < 280) {
+      return true;
+    }
+    state.lastRemoteAction = action;
+    state.lastRemoteActionAt = now;
+    return false;
+  }
+
+  function handleRemoteEvent(event) {
+    var action = remoteAction(event);
+    var active;
+    if (!action) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    if (action === "left" || action === "right" || action === "up" || action === "down") {
+      if (event.type !== "keydown") {
+        return;
+      }
+      moveFocus(action);
+      return;
+    }
+    if (shouldDebounce(action)) {
+      return;
+    }
+    if (action === "enter") {
+      active = state.focusedElement || document.activeElement;
+      clickElement(active);
+    } else if (action === "back") {
+      goBack();
+    }
+  }
+
+  document.addEventListener("keydown", handleRemoteEvent, true);
+  document.addEventListener("keyup", handleRemoteEvent, true);
 
   try {
     if (window.tizen && tizen.tvinputdevice) {
       tizen.tvinputdevice.registerKey("Back");
+      tizen.tvinputdevice.registerKey("Enter");
+      tizen.tvinputdevice.registerKey("ArrowUp");
+      tizen.tvinputdevice.registerKey("ArrowDown");
+      tizen.tvinputdevice.registerKey("ArrowLeft");
+      tizen.tvinputdevice.registerKey("ArrowRight");
       tizen.tvinputdevice.registerKey("MediaPlayPause");
       tizen.tvinputdevice.registerKey("MediaPlay");
       tizen.tvinputdevice.registerKey("MediaPause");
@@ -496,6 +650,10 @@
     setStatus("Ready without Tizen key registration");
   }
 
+  forceTvViewport();
+  applyStageScale();
+  window.addEventListener("resize", applyStageScale);
+  window.addEventListener("orientationchange", applyStageScale);
   hideBootScreen();
   loadSection("trending");
 }());
