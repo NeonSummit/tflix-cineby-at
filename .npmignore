@@ -26,6 +26,7 @@ __tests__/
 .DS_Store
 Thumbs.db
 *.bat
+*.tgz
 NPM-PUBLISHING.md
 MODULES.md
 TFlix-Description.md
