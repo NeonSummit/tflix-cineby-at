@@ -2,7 +2,7 @@
 
 Standalone Next Generation TizenBrew app for Samsung TVs.
 
-This fork no longer loads `https://www.cineby.at` as the host page. The current Cineby site uses a modern Next.js bundle, ads scripts, and anti-devtool logic that can crash older Tizen WebViews into a black screen. Version `1.5.0` starts a lightweight TV UI from `app/index.html`, fetches catalog metadata from `db.videasy.to`, and launches playback through `player.videasy.to`.
+This fork no longer loads `https://www.cineby.at` as the host page. The current Cineby site uses a modern Next.js bundle, ads scripts, and anti-devtool logic that can crash older Tizen WebViews into a black screen. Version `1.5.1` starts a lightweight TV UI from root `index.html`, fetches catalog metadata from `db.videasy.to`, and launches playback through `player.videasy.to`.
 
 ## Features
 
@@ -18,13 +18,16 @@ This fork no longer loads `https://www.cineby.at` as the host page. The current 
 
 1. Open Next Generation TizenBrew on the TV.
 2. Go to the module manager.
-3. Add this GitHub repository:
+3. Add this GitHub module name:
 
    ```text
-   https://github.com/NeonSummit/tflix-cineby-at
+   NeonSummit/tflix-cineby-at@58b9ffa
    ```
 
-4. Restart or refresh TizenBrew if it keeps an older module cache.
+   In TizenBrew this becomes `gh/NeonSummit/tflix-cineby-at@58b9ffa`.
+   Do not paste the full `https://github.com/...` URL into the GitHub module field.
+
+4. Restart or refresh TizenBrew if it keeps an older module cache. TizenBrew uses jsDelivr behind the scenes, so branch installs can stay cached; the commit-pinned module name above avoids that.
 5. Launch `TFlix Cineby AT`.
 
 ## Usage
@@ -41,18 +44,19 @@ The root `package.json` is configured for TizenBrew app mode:
 ```json
 {
   "packageType": "app",
-  "appPath": "app/index.html",
+  "appPath": "index.html",
   "serviceFile": "dist/service.js"
 }
 ```
 
-The older `mods/` source is kept in the repository for reference, but it is not the active launch path for this module.
+The root `index.html` shows a large `BOOT OK` diagnostic before loading app JavaScript. If that screen stays visible, TizenBrew loaded the module but did not execute `app/app.js`. The older `mods/` source is kept in the repository for reference, but it is not the active launch path for this module.
 
 ## Development
 
 The standalone app is plain HTML/CSS/JavaScript and does not need a build step:
 
 ```text
+index.html
 app/index.html
 app/styles.css
 app/app.js
