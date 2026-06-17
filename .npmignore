@@ -21,6 +21,7 @@ build.bat
 test/
 tests/
 __tests__/
+.playwright-cli/
 
 # Other unnecessary files
 .DS_Store

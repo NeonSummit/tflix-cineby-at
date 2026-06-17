@@ -417,6 +417,31 @@ main {
   white-space: pre-wrap;
 }
 
+.health {
+  position: absolute;
+  z-index: 90;
+  right: 18px;
+  bottom: 18px;
+  max-width: 840px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #11161e;
+  color: #aab1bf;
+  font-size: 16px;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.health.warn {
+  background: #33240b;
+  color: #ffe1a1;
+}
+
+.health.error {
+  background: #311016;
+  color: #ffd7df;
+}
+
 .hidden {
   display: none !important;
 }
@@ -427,7 +452,7 @@ main {
     <div id="boot" class="boot">
       <div class="boot-card">
         <h1>BOOT OK</h1>
-        <p>TFlix Cineby AT 1.6.2 loaded single-file TV stage.</p>
+        <p>TFlix Cineby AT 1.7.0 loaded single-file TV stage.</p>
         <p>If this stays on screen, inline app JavaScript did not finish.</p>
         <small>Entrypoint: single-file index.html, 1920x1080 stage, inline CSS and JS</small>
       </div>
@@ -467,7 +492,7 @@ main {
             </div>
             <button class="focusable button" data-action="open-alt-player">Alt</button>
           </div>
-          <iframe id="player-frame" title="Video player" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>
+          <iframe id="player-frame" title="Video player" allow="autoplay; fullscreen; encrypted-media"></iframe>
         </section>
       </main>
 
@@ -488,6 +513,7 @@ main {
       </div>
 
       <pre id="debug" class="debug hidden"></pre>
+      <div id="health" class="health">Booting TFlix Cineby AT 1.7.0...</div>
     </div>
     <script>
       window.__TFLIX_ROOT_BOOTED__ = true;
@@ -500,6 +526,7 @@ main {
   var IMAGE = "https://image.tmdb.org/t/p/";
   var STAGE_WIDTH = 1920;
   var STAGE_HEIGHT = 1080;
+  var VERSION = "1.7.0";
   var state = {
     section: "trending",
     items: [],
@@ -512,7 +539,11 @@ main {
     lastRemoteActionAt: 0,
     detailSeasons: [],
     detailEpisodes: [],
-    selectedSeason: 1
+    selectedSeason: 1,
+    lastApiStatus: "not-started",
+    lastApiPath: "",
+    lastFocusLabel: "",
+    lastPlayerUrl: ""
   };
 
   function forceTvViewport() {
@@ -563,6 +594,7 @@ main {
     debug.className = "debug";
     debug.textContent = String(message || "Unknown error");
     setStatus("Error. See red diagnostic box.");
+    setHealth("ERROR: " + compactText(message), "error");
   }
 
   function clearFocusedClass() {
@@ -583,6 +615,8 @@ main {
     if (element.classList) {
       element.classList.add("is-focused");
     }
+    state.lastFocusLabel = labelForElement(element);
+    setHealth("Focus: " + state.lastFocusLabel + " · API: " + state.lastApiStatus, "");
     if (element.scrollIntoView) {
       try {
         element.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -595,8 +629,12 @@ main {
   function clickElement(element) {
     var event;
     if (!element) {
+      focusFirstIn(document);
+      setStatus("Focused first item. Press OK again.");
+      setHealth("OK received without focus; moved focus to first item", "warn");
       return;
     }
+    setHealth("OK: " + labelForElement(element), "");
     try {
       if (typeof element.click === "function") {
         element.click();
@@ -622,6 +660,33 @@ main {
     $("status").textContent = text;
   }
 
+  function compactText(value) {
+    return String(value && value.message ? value.message : value || "")
+      .replace(/\s+/g, " ")
+      .slice(0, 220);
+  }
+
+  function labelForElement(element) {
+    var text;
+    if (!element) {
+      return "none";
+    }
+    text = element.getAttribute && (element.getAttribute("data-action") || element.getAttribute("data-key") || element.getAttribute("aria-label"));
+    if (!text) {
+      text = element.textContent || element.id || element.tagName || "element";
+    }
+    return compactText(text);
+  }
+
+  function setHealth(text, level) {
+    var health = $("health");
+    if (!health) {
+      return;
+    }
+    health.className = "health" + (level ? " " + level : "");
+    health.textContent = "v" + VERSION + " · " + compactText(text);
+  }
+
   function escapeHtml(value) {
     return String(value == null ? "" : value)
       .replace(/&/g, "&amp;")
@@ -633,6 +698,9 @@ main {
 
   function request(path, callback) {
     var xhr = new XMLHttpRequest();
+    state.lastApiPath = path;
+    state.lastApiStatus = "loading " + path;
+    setHealth("API loading " + path, "");
     xhr.open("GET", path.indexOf("http") === 0 ? path : DB + path, true);
     xhr.timeout = 18000;
     xhr.onreadystatechange = function () {
@@ -640,19 +708,27 @@ main {
         return;
       }
       if (xhr.status >= 200 && xhr.status < 300) {
+        state.lastApiStatus = "HTTP " + xhr.status + " " + path;
+        setHealth("API OK " + xhr.status + " " + path, "");
         try {
           callback(null, JSON.parse(xhr.responseText));
         } catch (e) {
           callback(e);
         }
       } else {
+        state.lastApiStatus = "HTTP " + xhr.status + " " + path;
+        setHealth("API failed " + xhr.status + " " + path, "error");
         callback(new Error("HTTP " + xhr.status + " for " + path));
       }
     };
     xhr.ontimeout = function () {
+      state.lastApiStatus = "timeout " + path;
+      setHealth("API timeout " + path, "error");
       callback(new Error("Timeout for " + path));
     };
     xhr.onerror = function () {
+      state.lastApiStatus = "network-error " + path;
+      setHealth("API network error " + path, "error");
       callback(new Error("Network error for " + path));
     };
     xhr.send();
@@ -874,6 +950,7 @@ main {
 
   function launchExternalPlayer(url) {
     setStatus("Opening player...");
+    setHealth("Opening player: " + url, "");
     try {
       window.sessionStorage.setItem("tflixLastSection", state.section || "trending");
     } catch (e) {}
@@ -889,6 +966,7 @@ main {
     state.currentUrl = urls.primary;
     state.altUrl = urls.alt;
     if (!embed) {
+      state.lastPlayerUrl = useAlt ? urls.alt : urls.primary;
       launchExternalPlayer(useAlt ? urls.alt : urls.primary);
       return;
     }
@@ -1107,6 +1185,7 @@ main {
     }
     event.preventDefault();
     event.stopPropagation();
+    setHealth("Remote " + action + " keyCode=" + (event.keyCode || event.which || "") + " key=" + (event.key || ""), "");
     if (action === "left" || action === "right" || action === "up" || action === "down") {
       if (event.type !== "keydown") {
         return;
@@ -1144,6 +1223,7 @@ main {
   window.addEventListener("resize", applyStageScale);
   window.addEventListener("orientationchange", applyStageScale);
   hideBootScreen();
+  setHealth("Boot complete; loading catalog", "");
   loadSection("trending");
 }());
 

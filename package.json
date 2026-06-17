@@ -1,7 +1,7 @@
 {
   "name": "tflix-cineby-at",
   "appName": "TFlix Cineby AT",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Standalone TizenBrew app for browsing Cineby/Videasy content on Samsung TVs.",
   "packageType": "app",
   "appPath": "index.html",
